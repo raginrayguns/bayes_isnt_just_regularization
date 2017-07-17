@@ -106,7 +106,7 @@ just as it was before. (Here I wrote the estimate μ̂ as a function of a simula
 
 So, we got some improvement by using the posterior mean. The improvement makes sense when you compare the actual values of the estimates. I redid the simulations for the sample size of 5 case (my rMSE’s were similar by the way—1.05 and 0.957 for MAP and posterior mean respectively).  I looked at some of the cases where posterior mean did much better than the MLE, and saw a lot of stuff like this:
 
-![comparison](http://i.imgur.com/K7YsEcH.png)
+![comparison](http://i.imgur.com/nHPFg38.png)
 
 You can tell this is a case where the posterior mean did better, because the cyan line is closer to the black one. Basically, the likelihood function is identifying two plausible values, one at each of those peaks. The ML estimator is breaking the tie somewhat arbitrarily, whereas the posterior mean is hedging by choosing a value between them. In these cases, ML chose the wrong peak.
 
