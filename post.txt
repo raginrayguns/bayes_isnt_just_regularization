@@ -50,6 +50,8 @@ What I want to focus on is nostalgebraist’s half-joking statement that Bayesia
 
 I’m going to start with some technicalities, focusing on the mode vs mean issue nostalgebraist alluded to. Then I’m going to show an example where Bayesian estimation improves on maximum likelihood, without any of the increase in bias that Shalizi suggests is necessary, and explain what’s going on.
 
+[[MORE]]
+
 OK, proceeding with the technicalities. Bayesian inference doesn't give you an estimate, it gives you a posterior distribution. To get an estimate, you use Bayesian decision theory to choose one. Your choice depends on your loss function. The formula is
 $$\hat{\mu} = \underset{\mu}{\mathrm{argmin}} \, E[L(M,\mu)|D=d]$$
 where μ̂ is your estimate, M is the unknown, L is your loss function, D is the random variable representing your data, d is the observed value, and E[•|D=d] is posterior expectation.
