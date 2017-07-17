@@ -88,18 +88,22 @@ for (i in bad$run)
 
 # The one I'm using for my illustration
 png("comparison.png", width=540, height=540)
+par(mar=c(5, 4.2, 4, 2) + 0.1)
 i <- 97729
 x <- samples[[i]]
 plot(Vectorize(function(m) sum(dcauchy(x, location=m, log=TRUE))),
      xlim=2*(range(x) - median(x)) + median(x),
      main="Comparison of ML/MAP and posterior mean",
-     xlab="mu", ylab="likelihood")
-abline(v=mles[i], col='orange')
-abline(v=postmeans[i], col='cyan3')
-abline(v=0, col="black")
+     xlab="mu", ylab="log likelihood",
+     cex.lab=1.5, cex.axis=1.5, cex.main=1.5, lwd=1.2)
+abline(v=mles[i], col='orange', lwd=1.2)
+abline(v=postmeans[i], col='cyan3', lwd=1.2)
+abline(v=0, col="black", lwd=1.2)
 legend(12, -21.66604,
        c("ML/MAP", "posterior mean", "truth"),
-       c("orange", "cyan3", "black"))
+       c("orange", "cyan3", "black"),
+       cex=1.5)
+par(mar=c(5, 4, 4, 2) + 0.1)
 dev.off()
 
 # Comparison of rmse
