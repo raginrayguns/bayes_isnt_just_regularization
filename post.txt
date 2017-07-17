@@ -1,0 +1,145 @@
+> **10. It’s just regularization, dude**
+
+> (N.B. the below is hand-wavey and not quite formally correct, I just want to get the intuition across)
+
+> My favorite way of thinking about statistics is the one they teach you in machine learning.
+
+> You’ve got data.  You’ve got an “algorithm,” which takes in data on one end, and spits out a model on the other.  You want your algorithm to spit out a model that can predict _new_ data, data you didn’t put in.
+
+> “Predicting new data well” can be formally decomposed into two parts, “bias” and “variance.”  If your algorithm is biased, that means it tends to make models that do a certain thing no matter _what_ the data does.  Like, if your algorithm is linear regression, it’ll make a model that’s linear, whether the data is linear or not.  It has a bias.
+
+> “Variance” is the sensitivity of the model to fluctuations in the data.  Any data set is gonna have some noise along with the signal.  If your algorithm can come up with really complicated models, then it can fit whatever weird nonlinear things the signal is doing (low bias), but also will tend to misperceive the noise as signal.  So you’ll get a model exquisitely well-fitted to the subtle undulations of your dataset (which were due to random noise) and it’ll suck at prediction.
+
+> There is a famous “tradeoff” between bias and variance, because the more complicated you let your models get, the more freedom they have to fit the noise.  But reality is complicated, so you don’t want to just restrict yourself to something super simple like linear models.  What do you do?
+
+> A typical answer is “regularization,” which starts out with an algorithm that can produce really complex models, and then adds in a penalty for complexity alongside the usual penalty for bad data fits.  So your algorithm “spends points” like an RPG character: if adding complexity helps fit the data, it can afford to spend some complexity points on it, but otherwise it’ll default to the less complex one.
+
+> This point has been made by many people, but Shalizi made it well in the [very same post](http://t.umblr.com/redirect?z=http%3A%2F%2Fbactra.org%2Fweblog%2F601.html&t=MmZlMmQ1YmVhYTk5NTI5ZDdkZjEwMTEzZGY4YzBhODZhY2E2NGJkZCwxb1kwcmpFYw%3D%3D&b=t%3AkIK3APY_fno-3abMzM2GDA&p=http%3A%2F%2Fnostalgebraist.tumblr.com%2Fpost%2F161645122124%2Fbayes-a-kinda-sorta-masterpost&m=1) I linked earlier: Bayesian conditionalization is formally identical to a regularized version of maximum likelihood inference, where the prior is the regularizing part.  That is, rather than just choosing the hypothesis that best fits the data, full stop, you mix together “how well does this fit the data” with “how much did I believe this before.”
+
+> But hardly anyone has strong _beliefs_ about models before they even see the data.  Like, before I show you the data, what is your “degree of belief” that a regression coefficient will be between 1 and 1.5?  What does that even mean?
+
+> Eliezer Yudkowsky, strong Bayesian extraordinaire, [spins](http://t.umblr.com/redirect?z=http%3A%2F%2Flesswrong.com%2Flw%2Fmt%2Fbeautiful_probability%2F&t=MTdiNjA0ZTMzNTk2MjM1MjU5ZWEwZWYyYjI4ZTNmZWMzY2I3OGI2OSwxb1kwcmpFYw%3D%3D&b=t%3AkIK3APY_fno-3abMzM2GDA&p=http%3A%2F%2Fnostalgebraist.tumblr.com%2Fpost%2F161645122124%2Fbayes-a-kinda-sorta-masterpost&m=1) this correspondence as a win for Bayesianism:
+
+> > So you want to use a linear regression, instead of doing Bayesian updates?  But look to the underlying structure of the linear regression, and you see that it corresponds to picking the best point estimate given a Gaussian likelihood function and a uniform prior over the parameters.
+
+> > You want to use a regularized linear regression, because that works better in practice?  Well, that corresponds (says the Bayesian) to having a Gaussian prior over the weights.
+
+> But think about it.  In the bias/variance picture, L2 regularization (what he’s referring to) is used because it penalizes variance; we can figure out the right strength of regularization (i.e. the variance of the Gaussian prior) by seeing what works best in practice.  This is a concrete, grounded, practical story that actually _explains_ why we are doing the thing.  In the Bayesian story, we supposedly have _beliefs_ about our regression coefficients which are represented by a Gaussian.  What sort of person thinks “oh yeah, my beliefs about these coefficients correspond to a Gaussian with variance 2.5″?  And what if I do cross-validation, _like I always do_, and find that variance 200 works better for the problem?  Was the other person _wrong?  _But how could they have known?
+
+> It gets worse.  Sometimes you don’t do L2 regularization.  Sometimes you do L1 regularization, because (talking in real-world terms) you want sparse coefficients.  [In Bayes land](http://t.umblr.com/redirect?z=http%3A%2F%2Fwww.stat.ufl.edu%2Farchived%2Fcasella%2FPapers%2FLasso.pdf&t=OGZkOTYxNTZlMDliMjk2OTZlM2ZiZWM2OTRlZjk5YjA1YmFlNDQ2ZCwxb1kwcmpFYw%3D%3D&b=t%3AkIK3APY_fno-3abMzM2GDA&p=http%3A%2F%2Fnostalgebraist.tumblr.com%2Fpost%2F161645122124%2Fbayes-a-kinda-sorta-masterpost&m=1), this
+
+> > can be interpreted as a Bayesian posterior mode estimate when the regression parameters have independent Laplace (i.e., double-exponential) priors
+
+> Even ignoring the mode vs. mean issue, I have never met anyone who could tell whether their beliefs were normally distributed vs. Laplace distributed.  Have you?
+
+tl;dr: Regularization is not the point of the prior. Even when we’re not regularizing, the prior is an indispensable part of useful machinery for producing “hedged” estimates, which are good in all plausible worlds.
+
+OK, here’s the whole post.
+
+The quoted section is about whether Bayesians can explain regularization. We know regularization helps, and we’re going to do it in any case, but Bayesians purport to explain why and when it helps. See, for example, the above <a class="tumblelog" spellcheck="false">@yudkowsky</a> quote, as well as this one:
+
+[Eliezer_Yudkowsky](http://lesswrong.com/lw/jne/a_fervent_defense_of_frequentist_statistics/ajwa):
+
+> The point of Bayesianism isn't that there's a toolbox of known algorithms like max-entropy methods which are supposed to work for everything. The point of Bayesianism is to provide a coherent background epistemology which underlies everything; when a frequentist algorithm works, there's supposed to be a Bayesian explanation of why it works. I have said this before many times but it seems to be a "resistant concept" which simply cannot sink in for many people.
+
+nostalgebraist is making Yudkowsky very happy in his post, by arguing with his actual belief in the status of Bayesianism as a background epistemology. nostalgebraist’s point is that Bayesianism doesn’t explain why or how we regularize, and more generally that we shouldn’t try to judge inferential methods by how Bayesian they are. nostalgebraist is summarizing this as “Bayesianism is just regularization,” which is a not entirely serious inversion of a common Bayesian position, that “regularization is just Bayesian statistics.”
+
+I disagree with nostalgebraist about all this, and I’m going to write a post about why, maybe next week. This current post, which will be quite long, is absolutely not about the issue of whether Bayesianism explains regularization. I start by describing this issue just to show that I understand the real point of the OP, and that I am being quite deliberate when I completely ignore it in the following.
+
+What I want to focus on is nostalgebraist’s half-joking statement that Bayesian inference is just regularization. While he’s not being entirely serious, he may be partly serious, and in any case it’s what a lot of people actually believe. For example, in replies framed as defenses of the Bayesian framework, <a class="tumblelog" spellcheck="false">@4point2kelvin</a> writes "You can definitely think of anything Bayesian as 'maximum likelihood with a prior.’" But even though the prior has to be (somewhat) arbitrary when the hypothesis-space is infinite, I still think it’s useful.” Plus, once I’ve shown Bayes isn’t just regularization, then I get to say what else it is.
+
+I’m going to start with some technicalities, focusing on the mode vs mean issue nostalgebraist alluded to. Then I’m going to show an example where Bayesian estimation improves on maximum likelihood, without any of the increase in bias that Shalizi suggests is necessary, and explain what’s going on.
+
+OK, proceeding with the technicalities. Bayesian inference doesn't give you an estimate, it gives you a posterior distribution. To get an estimate, you use Bayesian decision theory to choose one. Your choice depends on your loss function. The formula is
+$$\hat{\mu} = \underset{\hat{\mu}}{\mathrm{argmin}} \, E[L(M,\hat{\mu})|D=d]$$
+where μ̂ is your estimate, M is the unknown, L is your loss function, D is the random variable representing your data, d is the observed value, and E[•|D=d] is posterior expectation.
+
+One kind of silly choice is this zero-one loss:
+
+$$L(\mu,\hat{\mu}) = \begin{cases}
+1 & \text{if } |\mu-\hat{\mu}| < \epsilon \\newline
+0 & \text{otherwise}
+\end{cases}$$
+
+As ε→0, the estimate with this loss function approaches
+
+$$\hat{\mu} = \underset{\mu}{\mathrm{argmax}} \, f(\mu|D=d)$$
+
+where f(μ|D=d) is the density of the posterior distribution. This is called the maximum a posteriori estimate, or MAP. It's the same as maximum likelihood when the prior is uniform, and otherwise the same as penalized maximum likelihood. This is what Cosma Shalizi means when he says there's a formal equivalence between penalized maximum likelihood and Bayesian estimation.
+
+If we instead use squared error loss:
+
+$$L(\mu, \hat{\mu}) = (\mu - \hat{\mu})^2$$
+
+then the estimate is
+
+$$\hat{\mu} = E[M|D=d]$$
+
+This is called the "posterior mean." This is the "mean vs mode" issue--do we estimate with the mean of the posterior distribution, or with the mode, which would be MAP? 
+
+Okay, now that we know what "Bayesian estimation" is, here's an example where Bayesian estimation improves on maximum likelihood estimation. Suppose we get n independent samples from a Cauchy distribution centered on μ. We want to estimate μ, and will judge our success by squared error loss.
+
+One option is the maximum likelihood (ML) estimator. Let’s see if we can use the Bayesian machinery to improve on the maximum likelihood estimator. We want to minimize squared error, so we’re going to use the posterior mean. This requires some prior—let’s use a uniform prior over all µ (which is an improper prior, but the posterior will be proper). We’re going with this choice because I want to show that Bayes isn’t just regularization, so I’m choosing a prior wtih no information which won’t bias the result towards any particular value. With this prior, the ML estimator is equivalent to the MAP estimator, which is also Bayesian, but not what a Bayesian expects to do best by the criterion of squared error.
+
+The ML/MAP estimator and the posterior mean are both unbiased (proof here).
+
+The ML/MAP estimators were compared to the posterior mean (with the uniform prior) in this problem by [Hanson and Wolf](dx.doi.org/10.1007/978-94-015-8729-7_20), in 100,000 randomly generated samples from a Cauchy distribution with µ=1. They compared the root-mean squared error (rMSE). For sample sizes 1 and 2, either the error diverged or, for n=2, the ML/MAP estimator didn’t exist. For larger sample sizes, their results were
+
+    Sample_size     MAP_rMSE    posterior_mean_rMSE
+    3               2.825       2.768
+    5               1.070       0.958 
+    10              0.538       0.522
+    20              0.341       0.339
+    40              0.236       0.232
+
+So, there’s a modest improvement when you switch to the posterior mean. The improvement is never dramatic, but it’s more pronounced at small sample sizes.
+
+They did not observe detectable bias, if you don’t believe my proof.
+
+Though these simulations were for μ=1, the results are actually valid for all μ. To see this, suppose you want a simulation for μ=b. Just add b-1 to each of your samples from the simulation. Then, your estimates increase by b-1 (proved here, section four). Your squared error in each case is 
+
+$$\hat{\mu}(x+b-1) - b)^2 = (\hat{\mu} + b - 1 - b)^2 = (\hat{\mu}-1)^2$$
+
+just as it was before. So, the above table is actually the true root mean squared error of these estimates, regardless of $\mu$. 
+
+The improvement makes sense when you compare the actual values of the estimates. I redid the simulations for the sample size of 5 case (my rMSE’s were similar by the way—1.05 and 0.957 for MAP and posterior mean respectively).  I looked at some of the cases where posterior mean did much better than the MLE, and saw a lot of stuff like this:
+
+![comparison](http://i.imgur.com/K7YsEcH.png)
+
+You can tell this is a case where the posterior mean did better, because the cyan line is closer to the black one. Basically, the likelihood function is identifying two plausible values, one at each of those peaks. The ML estimator is breaking the tie somewhat arbitrarily, whereas the posterior mean is hedging by choosing a value between them. In these cases, ML chose the wrong peak.
+
+Actually, in many cases, ML chooses the right one and does better. But we're judging these estimators by squared error loss, which rewards being half as wrong twice as often (2*(ε/2)²=ε²/2). Choosing between the peaks is indeed the better strategy here. That's my explanation for the lower MSE of the posterior mean.
+
+Here’s my code.
+
+Now, I'm not trying to say "checkmate, frequentists!" here. I'm not saying frequentists are stuck with maximum likelihood--in fact, after seeing the above MSE calculations, a frequentist would of course be using the posterior mean. And I'm not saying that the Bayesian explanation for its success is better--after all, when I wanted to convince you it was better, I did a frequentist calculation.
+
+So, before I get to what I am saying, let’s review. We're getting a sample from a Cauchy distribution centered on unknown μ. Our goal is to estimate µ and get low squared error. We had an estimator of µ: the ML/MAP estimate. We wanted to improve on this estimate, so we plugged the Cauchy distribution and the squared error loss into the Bayesian machinery. The machinery also required a prior, for which we gave the uniform prior. We turned the crank and got the posterior mean, which gave us the improvement in squared error that we wanted, while also remaining unbiased.
+
+Now, let’s recall what I’m arguing against. If you just read the Shalizi post, and I told you that I improved on an ML estimate by assuming a prior and doing Bayesian estimation, this wouldn’t surprise you. But you’d naturally assume that the prior biased the estimate. That was the explanation Shalizi gave for how a prior can help: it adds a little bias, take a bug chunk out of the variance, and ends up reducing the mean squared error. When in fact, we didn’t need to add any bias at all, which must seem miraculous if you think Bayes is just regularization.
+
+So, all I’m saying is this: we often want to use the Bayesian machinery even if we’re not going to regularize. Which requires assuming a prior. The benefits we get from assuming a prior are not just due to bias or information added by the prior. The prior is doing some other kind of useful work. That’s all I mean by Bayes is not just regularization.
+
+So maybe now you’re wondering, what are we getting from the prior, if it’s not regularization? How can a completely uniform, uninformative prior, that doesn’t push the estimate towards any particular value, possibly help? If you’re wondering this, you’re in luck, because I have a lot of opinions about it and they're right down here ꜜ.
+
+Recall the “hedging” property of the posterior mean. When there were multiple plausible worlds, it was decent in all of them.
+
+To see that we could have expected this, let’s rewrite the general formula for a Bayesian estimate:
+
+$$\hat{\mu} = \frac{\int L(\mu, \hat{\mu})\, f(x|\hat{\mu}) \,d\pi(\hat\mu)}{\int f(x|\hat{\mu})\, d\pi(\hat\mu)}$$
+
+where f(x|μ̂) is the distribution of x given that μ=μ̂, and π is the prior probability measure. So, we’re averaging the loss across the parameter space, weighing our average by the likelihood function. 
+
+Now we can see why the prior is a necessary part of this machinery. To average across the parameter space, we need a measure on the parameter space.  To put it less mathematically, let’s binarize everything and ask, “how can we get at least decent performance, for many different values of the parameter?” You can’t define “many values” of the parameter without a measure.
+
+Now, I’m not saying we have to be Bayesians in order to hedge. The Bayesian solution is a rather specific way of hedging. A Bayesian weights by the likelihood function, rather than by the squared likelihood function or something. But any method you come up with, to answer the question “what has good performance for many parameter values,” is going to have a measure over the parameter space.
+
+I’m also not saying we have to interpret that measure as prior belief. I’m just trying to answer the question of why we’re choosing a measure over the parameter space at the beginning of our problem. We have to, if we want to hedge and do well across the parameter space.
+
+So, I have two conclusions:
+
+* Bayes is not just regularization. The benefits we expect from using the Bayesian estimation machinery include hedging, which is independent from regularization.
+
+* The prior is not just for biasing the estimate. In this I’m contradicting both the Bayesians who say we use it to bias towards _a priori_ plausible values, and the non-Bayesians who say we use it to achieve a better bias-variance tradeoff. Rather, it’s an indispensable part of answering a natural question that confronts us when we have multiple, roughly equally plausible solutions: how can we get decent estimation performance regardless of which turns out to be true?
+
+Hmm, although I'm wondering if the prior is really _indispensable_. What about the rule "weighted average of every local maximum of the likelihood function"? That seems like kind of a cool rule actually.

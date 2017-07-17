@@ -1,0 +1,140 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{bbm}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+\newcommand{\expec}[1]{\mathbbm{E}[#1]}
+\newcommand{\condexp}[2]{\mathbbm{E}_{#1}[#2]}
+\newcommand{\argmax}[1]{\underset{#1}{\text{argmax}}\,}
+
+\begin{document}
+
+\title{Proofs for the Bayes isn't just regularization post}
+\author{Reginald Reagan aka RAGIN' RAYGUNS}
+\maketitle
+
+\tableofcontents
+
+\section{Definitions and lemmas used in both unbiasedness proofs}
+The proof focuses on symmetries to reflections on the real line. A reflection involves shifting to zero, multiplying by negative one, and shifting back:
+$$R_a(x) = (x-a) \cdot (-1) + a = 2a-x$$
+\begin{lemma}$$\expec{R_a(X)} = R_a(\expec{X})$$\end{lemma}
+\begin{proof}
+$$\expec{R_a(X)} = \expec{2a-X} = 2a - \expec{X} = R_a(\expec{X})$$
+\end{proof}
+
+In the above you can think of $x$ as a number. However, below $x$ will be a vector, specifically a vector of observations in the sample. I will use the symbol $R_a$ for both the above operation on a number, as well as the same operation applied elementwise to a vector.
+
+\begin{lemma}{If a sample $X$ is drawn from a Cauchy distribution centered on $\mu$, then for any function $f$, $$\condexp{\mu}{f(R_\mu(X))} = \condexp{\mu}{f(X)}$$}\end{lemma}
+\begin{proof}
+$$\int_{-\infty}^\infty f(R_\mu(x)) \prod_i \pi (1 + (x_i-\mu)^2)^{-1} dx$$
+Changing variables with $y_i=R_\mu(x_i)$,
+$$\int_{\infty}^{-\infty} f(y) \prod_i \pi (1 + (2\mu - y_i - \mu)^2)^{-1} (-1) dy$$
+$$\int_{-\infty}^{\infty} f(y) \prod_i \pi (1 + (y_i - \mu)^2)^{-1} dy$$
+\end{proof}
+
+\section{Posterior mean is unbiased}
+\begin{definition}The posterior mean $T(x)$ is this function of the sample $x$:
+$$T(x) = \int_{-\infty}^{\infty} \mu' \frac{\prod_i \pi (1 + (x_i-\mu')^2)^{-1}}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i-\mu'')^2)^{-1} d\mu''} 1 d\mu'$$
+\end{definition}
+I'm writing it this way so you can see that the part after $\mu'$ is the posterior distribution, written using Bayes' theorem. The top is the conditional probability of the data given $\mu'$, the bottom is the marginal probability of the data, and the $1$ is our improper uniform prior. But here's a better way to write it:
+$$T(x) = \frac{\int_{-\infty}^{\infty} \mu' \prod_i \pi (1 + (x_i-\mu')^2)^{-1}d\mu'}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i-\mu')^2)^{-1} d\mu'}$$
+This is the form I'm going to use below.
+\begin{lemma}For any $a$, $$R_a(T(x)) = T(R_a(x))$$\end{lemma}
+\begin{proof}
+$$T(x+b) = \frac{\int_{-\infty}^{\infty} \mu' \prod_i \pi (1 + (x_i+b-\mu')^2)^{-1}d\mu'}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i+b-\mu')^2)^{-1} d\mu'}$$
+Changing variables with $\nu=\mu'-b$,
+$$T(x+b) = \frac{\int_{-\infty}^{\infty} (\nu+b) \prod_i \pi (1 + (x_i-\nu)^2)^{-1}d\nu}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i-\nu)^2)^{-1} d\nu}$$
+$$=\frac{\int_{-\infty}^{\infty} \nu \prod_i \pi (1 + (x_i-\nu)^2)^{-1}d\nu}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i-\nu)^2)^{-1} d\nu} + b \frac{\int_{-\infty}^{\infty} \prod_i \pi (1 + (x_i-\nu)^2)^{-1}d\nu}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i-\nu)^2)^{-1} d\nu}$$
+$$=\frac{\int_{-\infty}^{\infty} \nu \prod_i \pi (1 + (x_i-\nu)^2)^{-1}d\nu}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i-\nu)^2)^{-1} d\nu} + b $$
+$$T(x+b) = T(x)+b$$
+$$T(-x) = \frac{\int_{-\infty}^{\infty} \mu' \prod_i \pi (1 + (-x_i-\mu')^2)^{-1}d\mu'}{\int_{-\infty}^\infty \prod_i \pi (1 + (-x_i-\mu')^2)^{-1} d\mu'}$$
+Changing variables with $\nu=-\mu'$:
+$$\frac{\int_{\infty}^{-\infty} -\nu \prod_i \pi (1 + (-x_i+\nu)^2)^{-1}(-1)d\nu}{\int_{\infty}^{-\infty} \prod_i \pi (1 + (-x_i+\nu)^2)^{-1} (-1) d\nu}$$
+$$=-\frac{\int_{-\infty}^{\infty} \nu \prod_i \pi (1 + (x_i-\nu)^2)^{-1}d\nu}{\int_{-\infty}^\infty \prod_i \pi (1 + (x_i-\nu)^2)^{-1} d\nu}$$
+$$T(-x)=-T(x)$$
+$$T(R_a(x)) = T(2a-x) = 2a + T(-x) = 2a - T(x) = R_a(T(x))$$
+\end{proof}
+\begin{theorem}[Posterior mean is unbiased]$$\condexp{\mu}{T(X)}=\mu$$\end{theorem}
+\begin{proof}
+$$$$
+
+\begin{center}
+\begin{tabular}{l l}
+$R_\mu(\condexp{\mu}{T(X)})$ & \\
+$=\condexp{\mu}{R_\mu(T(X))}$ & Lemma 1 \\
+$ = \condexp{\mu}{T(R_\mu(X))}$ & Lemma 3 \\
+$ = \condexp{\mu}{T(X)}$ & Lemma 2
+\end{tabular}
+\end{center}
+
+Summarizing the above,
+$$R_\mu(\condexp{\mu}{T(X)}) = \condexp{\mu}{T(X)}$$
+$$2\mu - \condexp{\mu}{T(X)} = \condexp{\mu}{T(X)}$$
+$$2\mu = 2\condexp{\mu}{T(X)}$$
+$$\mu = \condexp{\mu}{T(X)}$$
+\end{proof}
+
+\section{Maximum likelihood estimate is unbiased}
+\begin{definition} The maximum likelihood estimate is this function of the sample $x$:
+% ugly hack to get it not to italicize argmax
+$$U(x) = \underset{\mu'}{\text{\emph{argmax}}} \, \prod_i \pi (1 + (x_i-\mu')^2)^{-1}$$
+\end{definition}
+
+\begin{lemma} For any $a$, $$R_a(U(x)) = U(R_a(x))$$ \end{lemma}
+\begin{proof}
+Let $\lambda(\mu')$ be the likelihood function for the sample $x$:
+$$\lambda(\mu') = \prod_i \pi(1 + (x_i-\mu')^2)^{-1}$$
+Then,
+$$U(x) = \argmax{\mu'} \lambda(\mu')$$
+Let $\lambda'(\mu')$ be the likelihood function for the sample $R_a(x)$:
+$$\lambda'(\mu') = \prod_i \pi(1 + (R_a(x_i)-\mu')^2)^{-1}$$
+Then,
+$$U(R_a(x)) = \argmax{\mu'} \lambda'(\mu')$$
+Connecting the values of these two likelihood functions:
+$$\lambda'(R_a(\mu')) = \prod_i \pi (1 + (R_a(x_i) - R_a(\mu'))^2)^{-1}$$
+$$=\prod_i \pi (1 + (2a-x_i - (2a-\mu'))^2)^{-1}$$
+$$=\prod_i \pi (1 + (x_i - \mu')^2)^{-1}$$
+$$=\lambda(\mu')$$
+Let $y^*=\max_{\mu'} \lambda(\mu')$. Every value taken by $\lambda'(\mu')$ is taken by $\lambda(\mu')$ somewhere, so we also have $y^*=\max_{\mu'} \lambda'(\mu')$. We know that
+$$\lambda(U(x)) = y^*$$
+Therefore,
+$$\lambda'(R_a(U(x))) = \lambda(U(x)) = y^*$$
+$$R_a(U(x)) = \argmax{\mu'} \lambda(\mu') = U(R_a(x))$$
+\end{proof}
+
+\begin{theorem}[Maximum likelihood estimator is unbiased]$$\condexp{\mu}{T(X)}=\mu$$\end{theorem}
+\begin{proof}
+Same proof as Theorem 1, but use lemma 4 instead of lemma 3.
+\end{proof}
+
+\section{Location equivariance of the posterior mean and maximum likelihood estimates}
+As before, $T(x)$ is the posterior mean calculated from the sample $x$, and $U(x)$ is the maximum likelihood estimate. See sections 2 and 3 respectively for the full definitions. The proof that $T(x+b)=T(x)+b$ is actually back in section 2, as part of the proof of lemma 3. The proof that $U(x+b) = U(x)+b$ is a slight variation on the proof of lemma 4, but I'll spell it out in its entirety below.
+\begin{theorem} For any $b$, $$U(x+b)=U(x)+b$$\end{theorem}
+\begin{proof}
+Let $\lambda(\mu')$, as before, be the likelihood function for the sample $x$:
+$$\lambda(\mu') = \prod_i \pi(1 + (x_i-\mu')^2)^{-1}$$
+Then,
+$$U(x) = \argmax{\mu'} \lambda(\mu')$$
+Let $\lambda'(\mu')$, this time, be the likelihood function for the sample $x+b$:
+$$\lambda'(\mu') = \prod_i \pi(1 + (x+b-\mu')^2)^{-1}$$
+Then,
+$$U(x+b) = \argmax{\mu'} \lambda'(\mu')$$
+Connecting the values of these two likelihood functions:
+$$\lambda'(\mu'+b) = \prod_i \pi(1 + (x+b-(\mu'+b))^2)^{-1}$$
+$$ = \prod_i \pi(1 + (x-\mu')^2)^{-1}$$
+$$ = \lambda(\mu')$$
+Let $y^*=\max_{\mu'} \lambda(\mu')$. Every value taken by $\lambda'(\mu')$ is taken by $\lambda(\mu')$ somewhere, so we also have $y^*=\max_{\mu'} \lambda'(\mu')$. We know that
+$$\lambda(U(x)) = y^*$$
+Therefore,
+$$\lambda'(U(x)+b) = \lambda(U(x)) = y^*$$
+$$U(x)+b = \argmax{\mu'} \lambda(\mu') = U(x+b)$$
+\end{proof}
+
+
+\end{document}
