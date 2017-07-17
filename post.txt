@@ -128,7 +128,7 @@ Recall the “hedging” property of the posterior mean. When there were multipl
 
 To see that we could have expected this, let’s rewrite the general formula for a Bayesian estimate:
 
-$$\hat{\mu} = \frac{\int L(\mu, \hat{\mu})\, f(x|\hat{\mu}) \,d\pi(\hat\mu)}{\int f(x|\hat{\mu})\, d\pi(\hat\mu)}$$
+$$\hat{\mu} = \underset{\mu'}{\mathrm{argmin}} \frac{\int L(\mu, \mu')\, f(x|\mu) \,d\pi(\mu)}{\int f(x|\mu)\, d\pi(\mu)}$$
 
 where f(x|μ̂) is the distribution of x given that μ=μ̂, and π is the prior probability measure. So, we’re averaging the loss across the parameter space, weighing our average by the likelihood function. 
 
