@@ -79,7 +79,7 @@ $$\hat{\mu} = E[M|D=d]$$
 
 This is called the "posterior mean." This is the "mean vs mode" issue--do we estimate with the mean of the posterior distribution, or with the mode, which would be MAP? 
 
-Okay, now that we know what "Bayesian estimation" is, here's an example where Bayesian estimation improves on maximum likelihood estimation. Suppose we get n independent samples from a Cauchy distribution centered on μ. We want to estimate μ, and will judge our success by squared error loss.
+Okay, now that we know what "Bayesian estimation" is, here's an example where Bayesian estimation improves on maximum likelihood estimation. Suppose we get a sample of n independent observations from a Cauchy distribution centered on μ. We want to estimate μ, and will judge our success by squared error loss.
 
 One option is the maximum likelihood (ML) estimator. Let’s see if we can use the Bayesian machinery to improve on the maximum likelihood estimator. We want to minimize squared error, so we’re going to use the posterior mean. This requires some prior—let’s use a uniform prior over all µ (which is an improper prior, but the posterior will be proper). We’re going with this choice because I want to show that Bayes isn’t just regularization, so I’m choosing a prior wtih no information which won’t bias the result towards any particular value. With this prior, the ML estimator is equivalent to the MAP estimator, which is also Bayesian, but not what a Bayesian expects to do best by the criterion of squared error.
 
