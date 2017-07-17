@@ -112,7 +112,7 @@ You can tell this is a case where the posterior mean did better, because the cya
 
 Actually, in many cases, ML chooses the right one and does better. But we're judging these estimators by squared error loss, which rewards being half as wrong twice as often (2*(ε/2)²=ε²/2). Choosing between the peaks is indeed the better strategy here. That's my explanation for the lower MSE of the posterior mean.
 
-Here’s my code.
+[Here’s my code.](https://github.com/raginrayguns/bayes_isnt_just_regularization/blob/master/comparison.R)
 
 Now, I'm not trying to say "checkmate, frequentists!" here. I'm not saying frequentists are stuck with maximum likelihood--in fact, after seeing the above MSE calculations, a frequentist would of course be using the posterior mean. And I'm not saying that the Bayesian explanation for its success is better--after all, when I wanted to convince you it was better, I did a frequentist calculation.
 
