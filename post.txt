@@ -81,7 +81,7 @@ Okay, now that we know what "Bayesian estimation" is, here's an example where Ba
 
 One option is the maximum likelihood (ML) estimator. Let’s see if we can use the Bayesian machinery to improve on the maximum likelihood estimator. We want to minimize squared error, so we’re going to use the posterior mean. This requires some prior—let’s use a uniform prior over all µ (which is an improper prior, but the posterior will be proper). We’re going with this choice because I want to show that Bayes isn’t just regularization, so I’m choosing a prior wtih no information which won’t bias the result towards any particular value. With this prior, the ML estimator is equivalent to the MAP estimator, which is also Bayesian, but not what a Bayesian expects to do best by the criterion of squared error.
 
-The ML/MAP estimator and the posterior mean are both unbiased (proof here).
+The ML/MAP estimator and the posterior mean are both unbiased (proof [here](https://github.com/raginrayguns/bayes_isnt_just_regularization/blob/master/proofs.pdf)).
 
 The ML/MAP estimators were compared to the posterior mean (with the uniform prior) in this problem by [Hanson and Wolf](dx.doi.org/10.1007/978-94-015-8729-7_20), in 100,000 randomly generated samples from a Cauchy distribution with µ=1. They compared the root-mean squared error (rMSE). For sample sizes 1 and 2, either the error diverged or, for n=2, the ML/MAP estimator didn’t exist. For larger sample sizes, their results were
 
@@ -96,7 +96,7 @@ So, there’s a modest improvement when you switch to the posterior mean. The im
 
 They did not observe detectable bias, if you don’t believe my proof.
 
-Though these simulations were for μ=1, the results are actually valid for all μ. To see this, suppose you want a simulation for μ=b. Just add b-1 to each of your samples from the simulation. Then, your estimates increase by b-1 (proved here, section four). Your squared error in each case is 
+Though these simulations were for μ=1, the results are actually valid for all μ. To see this, suppose you want a simulation for μ=b. Just add b-1 to each of your samples from the simulation. Then, your estimates increase by b-1 (proved [here](https://github.com/raginrayguns/bayes_isnt_just_regularization/blob/master/proofs.pdf), section four). Your squared error in each case is 
 
 $$\hat{\mu}(x+b-1) - b)^2 = (\hat{\mu} + b - 1 - b)^2 = (\hat{\mu}-1)^2$$
 
